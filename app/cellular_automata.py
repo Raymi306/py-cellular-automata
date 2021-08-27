@@ -4,14 +4,6 @@ from app.frames import BottomFrame, SideFrame
 from app.board import Board
 
 
-def entry_int_checker(new_val):
-    try:
-        int(new_val)
-        return True
-    except ValueError:
-        return False
-
-
 class Gui(tk.Frame):
 
     __slots__ = ()
@@ -26,7 +18,7 @@ class Gui(tk.Frame):
         super().__init__(parent)
         self.master.title("Cellular automata - tkinter test")
         # frames
-        self.outline_bool = tk.IntVar() # in this scope due to struggle with toggle box
+        self.outline_bool = tk.IntVar()  # in this scope due to struggle with toggle box
         self.outline_bool.set(1)
         self.side_frame = SideFrame(self, self.outline_bool)
         self.canvas_frame = tk.Frame(self)
