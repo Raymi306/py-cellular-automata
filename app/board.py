@@ -324,14 +324,15 @@ class Board(object):
         def tickrate_enter_handler(e):
             try:
                 new_tr = int(e.widget.get())
+            except ValueError:
+                pass
+            else:
                 if new_tr < 1:
                     new_tr = 1
                 if new_tr > 9999:
                     new_tr = 9999
                 self.tickrate = new_tr
-            except ValueError:
-                pass
-            #self.gui.tickrate_scale.set(self.tickrate)
+                self.gui.side_frame.tickrate_scale.set(new_tr)
 
         def outline_toggle_box_handler():
             if self.gui.outline_bool.get():
@@ -407,7 +408,6 @@ class Board(object):
             sen = tk.Label(row3, bg=box_norm_color, width=n_width, height=n_height, relief='sunken')
             neighbors_arr = [nwn, nn, nen, wn, en, swn, sn, sen]
 
-            
             for i in self.current_neighborhood:
                 neighbors_arr[i].config(state='active')
 
@@ -425,7 +425,7 @@ class Board(object):
                 n.bind("<Button-1>", nbox_click_lambda(n))
 
             rule_selector = tk.Frame(popup)
-            
+
             rborn = tk.Listbox(rule_selector, selectmode='multiple', exportselection=False, width=4, height=8, activestyle='none')
             rborn.insert('end', ' 1')
             rborn.insert('end', ' 2')
@@ -468,7 +468,7 @@ class Board(object):
             swn.pack(n_pack_options)
             sn.pack(n_pack_options)
             sen.pack(n_pack_options)
-            
+
             def button_command():
                 self.current_neighborhood = []
                 for i in range(8):
@@ -492,17 +492,17 @@ class Board(object):
                 print(born, survives)
                 self.rules = (born, survives)
                 self.current_rule = self.define_rules(self.rules)
-                    
+
 
             apply_button.configure(command=button_command)            
-        
+
         self.gui.side_frame.board_width_entry.insert(0, self.board_width)
         self.gui.side_frame.board_height_entry.insert(0, self.board_height)
         self.gui.side_frame.cell_width_entry.insert(0, self.cell_width)
         self.gui.side_frame.cell_height_entry.insert(0, self.cell_height)
         self.gui.side_frame.tickrate_entry.insert(0, self.tickrate)
         self.gui.side_frame.tickrate_scale.set(self.tickrate)
-        
+
         self.gui.canvas.bind("<Button-1>", canvas_click_handler)
         self.gui.bottom_frame.step_button.configure(command=step_button_handler)
         self.gui.bottom_frame.step_entry.insert(0, self.timestep)

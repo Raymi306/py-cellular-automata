@@ -9,6 +9,13 @@ def entry_int_checker(new_val):
         return False
 
 
+class CanvasFrame(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.canvas = tk.Canvas(self, bg='#bbbbbb')
+        self.canvas.pack(expand=1)
+
+
 class BottomFrame(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent, pady=2)
@@ -50,22 +57,31 @@ class BottomFrame(tk.Frame):
 class SideFrame(tk.Frame):
     def __init__(self, parent, outline_bool):
         super().__init__(parent, padx=10, pady=10)
-        vcmd = self.register(entry_int_checker), '%S'
-        # TODO change to spinboxes
-        # left frame / settings
+        self.vcmd = self.register(entry_int_checker), '%S'
         self.outline_bool = outline_bool
-        self.board_width_label = tk.Label(self, text="Board Width", relief="ridge")
-        self.board_width_entry = tk.Entry(self, width=6, justify="center", validate="key", vcmd=vcmd)
-        self.board_height_label = tk.Label(self, text="Board Height", relief="ridge")
-        self.board_height_entry = tk.Entry(self, width=6, justify="center", validate="key", vcmd=vcmd)
-        self.cell_width_label = tk.Label(self, text="Cell Width", relief="ridge")
-        self.cell_width_entry = tk.Entry(self, width=4, justify="center", validate="key", vcmd=vcmd)
-        self.cell_height_label = tk.Label(self, text="Cell Height", relief="ridge")
-        self.cell_height_entry = tk.Entry(self, width=4, justify="center", validate="key", vcmd=vcmd)
+        # TODO change to spinboxes
+        self._init_board_size_widgets()
+        self._init_cell_size_widgets()
         self.tickrate_label = tk.Label(self, text="Tickrate", relief="ridge")
-        self.tickrate_entry = tk.Entry(self, width=4, justify="center", validate="key", vcmd=vcmd)
-        self.tickrate_scale = tk.Scale(self, from_=500, to=1, length=80, showvalue=0, sliderlength=15, bd=0)
-        self.outline_toggle_box = tk.Checkbutton(self, text="Cell Outline", variable=self.outline_bool, relief="raised")
+        self.tickrate_entry = tk.Entry(
+                self,
+                width=4,
+                justify="center",
+                validate="key",
+                vcmd=self.vcmd)
+        self.tickrate_scale = tk.Scale(
+                self,
+                from_=500,
+                to=1,
+                length=80,
+                showvalue=0,
+                sliderlength=15,
+                bd=0)
+        self.outline_toggle_box = tk.Checkbutton(
+                self,
+                text="Cell Outline",
+                variable=self.outline_bool,
+                relief="raised")
         self.cell_color_selector = CellColorSelector(self)
         self.rules_button = tk.Button(self, text="Rules")
         self.apply_settings_button = tk.Button(
@@ -74,21 +90,65 @@ class SideFrame(tk.Frame):
                 command=None,
                 padx=10,
                 pady=10)
-        self.board_width_label.pack()
-        self.board_width_entry.pack()
-        self.board_height_label.pack()
-        self.board_height_entry.pack()
-        self.cell_width_label.pack()
-        self.cell_width_entry.pack()
-        self.cell_height_label.pack()
-        self.cell_height_entry.pack()
         self.tickrate_label.pack()
         self.tickrate_entry.pack()
         self.tickrate_scale.pack(pady=3)
         self.outline_toggle_box.pack()
         self.cell_color_selector.pack(pady=3)
         self.rules_button.pack()
-        self.apply_settings_button.pack(side="bottom")  # rename and move..?
+        self.apply_settings_button.pack(side="bottom")
+
+    def _init_board_size_widgets(self):
+        self.board_width_label = tk.Label(
+                self,
+                text="Board Width",
+                relief="ridge")
+        self.board_width_entry = tk.Entry(
+                self,
+                width=6,
+                justify="center",
+                validate="key",
+                vcmd=self.vcmd)
+        self.board_height_label = tk.Label(
+                self,
+                text="Board Height",
+                relief="ridge")
+        self.board_height_entry = tk.Entry(
+                self,
+                width=6,
+                justify="center",
+                validate="key",
+                vcmd=self.vcmd)
+        self.board_width_label.pack()
+        self.board_width_entry.pack()
+        self.board_height_label.pack()
+        self.board_height_entry.pack()
+
+    def _init_cell_size_widgets(self):
+        self.cell_width_label = tk.Label(
+                self,
+                text="Cell Width",
+                relief="ridge")
+        self.cell_width_entry = tk.Entry(
+                self,
+                width=4,
+                justify="center",
+                validate="key",
+                vcmd=self.vcmd)
+        self.cell_height_label = tk.Label(
+                self,
+                text="Cell Height",
+                relief="ridge")
+        self.cell_height_entry = tk.Entry(
+                self,
+                width=4,
+                justify="center",
+                validate="key",
+                vcmd=self.vcmd)
+        self.cell_width_label.pack()
+        self.cell_width_entry.pack()
+        self.cell_height_label.pack()
+        self.cell_height_entry.pack()
 
 
 class CellColorSelector(tk.Menubutton):
