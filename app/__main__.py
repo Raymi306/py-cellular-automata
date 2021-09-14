@@ -1,8 +1,8 @@
 import tkinter as tk
-from app.board import Board
+from app.board import BoardRedux
 from app.gui import Gui
 
 root = tk.Tk()
-gui = Gui(root)
-board = Board(gui)
+board = BoardRedux()
+gui = Gui(root, board)
 root.mainloop()
