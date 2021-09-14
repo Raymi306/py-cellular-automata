@@ -9,10 +9,11 @@ class Gui(tk.Frame):
     current_canvas_callback = -1
     toplevel_rules = None
 
-    def __init__(self, parent):
+    def __init__(self, parent, board):
         super().__init__(parent)
         self.master.title("Cellular automata - tkinter test")
         # outline_bool in this scope due to struggle with toggle box
+        self.master.board = board
         self.outline_bool = tk.IntVar()
         self.outline_bool.set(1)
         # frame instantiations
