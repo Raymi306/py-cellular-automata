@@ -1,5 +1,6 @@
-import tkinter as tk
+from functools import cached_property
 import random
+import tkinter as tk
 
 from app.cell import Cell
 
@@ -10,7 +11,7 @@ PALETTES = [
         ['', '#1200ff', '#2e0eba', '#28157c', '#211942', '#130a21', 'black'],
         ['', '#98ff11', '#54cc0a', '#229e06', '#18560a', '#0e3006', 'black'],
         ['', '#b2b1a4', '#b2b1a4', '#b2b1a4', '#b2b1a4', '#b2b1a4', '#b2b1a4'],
-        ['', '#E70000', '#FF8C00', '#FFEF00', '#00811F', '#0044FF', '#760089']]
+        ['', '#e70000', '#ff8c00', '#ffef00', '#00811f', '#0044ff', '#760089']]
 
 
 class BoardRedux:
@@ -27,12 +28,23 @@ class BoardRedux:
     def total_cells(self):
         return self.max_x_pos * self.max_y_pos
 
+    @cached_property
+    def tk_str_tickrate(self):
+        """cached property so default tk root is available during first access"""
+        var = tk.StringVar()
+        var.set('100')
+        return var
+
+    @property
+    def tickrate(self):
+        """Any uses of tk_str_tickrate should validate that it is an int"""
+        return int(self.tk_str_tickrate.get())
+
     def __init__(self):
         self.board_width = 640
         self.board_height = 480
         self.cell_width = 16
         self.cell_height = 16
-        self.tickrate = 100
         self.timestep = 1
         self.cells = ()
         self.grid = ()
@@ -58,67 +70,21 @@ class BoardRedux:
 
     def generate_cells(self):
         cells = []
-        if len(self.cells):
-            for cell in self.cells:
-                del(cell)
-        index = 0
-        neighbors = []
-        for y in range(0, self.board_height, self.cell_height):
-            for x in range(0, self.board_width, self.cell_width):
-                neighbors_var = []  # very poorly named
-                for i in self.current_neighborhood:
-                    neighbors_var.append(
-                            self.neighbor_functions[i](self, index))
-                neighbors.append(tuple(neighbors_var))
-                cells.append(
-                        Cell(
-                            x, y,
-                            x + self.cell_width, y + self.cell_height,
-                            self.current_color, self.gui.canvas
-                            )
-                        )
-                index += 1
-        for i, cell in enumerate(cells):
-            cell.neighbors = [cells[u] for u in neighbors[i]]
+        if self.cells:
+            del self.cells
+        for _y in range(0, self.board_height, self.cell_height):
+            for _x in range(0, self.board_width, self.cell_width):
+                cells.append(Cell(self.current_color))
         return tuple(cells)
 
-    """
-    def generate_grid(self):
-        grid = []
-        color = "white"
-
-        if self.gui.outline_bool.get():
-            state = "normal"
-        else:
-            state = "hidden"
-
-        if len(self.grid):
-            for line in self.grid:
-                del(line)
-
-        for y in range(0, self.board_height, self.cell_height):
-            grid.append(self.gui.canvas.create_line(0, y, self.board_width, y, fill=color, state=state))
-
-        for x in range(0, self.board_width, self.cell_width):
-            grid.append(self.gui.canvas.create_line(x, 0, x, self.board_height, fill=color, state=state))
-
-        return tuple(grid)
-    """
-
     def step(self):
-        counter = self.timestep
-        while counter:
-
-            for cell in self.cells:
-                cell.check_neighbors()
-            for cell in self.cells:
-                cell.tick(self.current_rule)
-            counter -= 1
-
-        #for cell in self.cells:
-            #cell.update_canvas(self.gui.canvas)
-        #timer = int((time.perf_counter() - timer) * 1000)
-        #print(timer)
+        cells_future = self.cells[:]
+        neighborhood = self.current_neighborhood
+        for _i in range(self.timestep):
+            for cell, cell_future in zip(self.cells, cells_future):
+                alive_neighbors = neighborhood # TODO implement
+                cell_future.tick(alive_neighbors, self.current_rule)
+        self.cells = cells_future
 
     def run(self):
         self.step()
@@ -132,7 +98,8 @@ class BoardRedux:
         #self.gui.canvas.delete('all')
         #self.gui.update_canvas_dim(self.board_width, self.board_height)
         self.cells = self.generate_cells()
-        self.grid = self.generate_grid()
+        #self.grid = self.generate_grid()
+        self.grid = None
 
     def get_nw(self, index):
         default_case = index - self.max_x_pos - 1
@@ -317,3 +284,6 @@ class Board(object):
             self.gui.side_frame.cell_color_selector.menu.entryconfigure(i, command=ccs_menu_lambda(i))
 
         self.gui.side_frame.rules_button.configure(command=rules_button)
+
+
+board = BoardRedux()

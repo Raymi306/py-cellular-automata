@@ -1,8 +1,7 @@
 import tkinter as tk
-from functools import wraps
 
+from app.board import board
 from app.frames.util import entry_int_checker, clamp_int
-
 
 class TickrateEntry(tk.Entry):
 
@@ -12,7 +11,8 @@ class TickrateEntry(tk.Entry):
                 width=4,
                 justify="center",
                 validate="key",
-                vcmd=parent.vcmd)
+                vcmd=parent.vcmd,
+                textvariable=board.tk_str_tickrate)
 
 
 class TickrateScale(tk.Scale):
@@ -25,7 +25,8 @@ class TickrateScale(tk.Scale):
                 length=80,
                 showvalue=0,
                 sliderlength=15,
-                bd=0)
+                bd=0,
+                variable=board.tk_str_tickrate)
 
 
 class ApplySettingsButton(tk.Button):
@@ -61,10 +62,7 @@ class SideFrame(tk.Frame):
         except ValueError:
             pass
         new_tickrate = clamp_int(new_tickrate, 1, 9999)
-        self.master.board.tickrate = new_tickrate
-        self.tickrate_scale.set(new_tickrate)
-        self.tickrate_entry.delete(0, tk.END)
-        self.tickrate_entry.insert(0, self.tickrate)
+        board.tk_str_tickrate.set(new_tickrate)
 
     def tickrate_entry_cmd(self):
         return self.update_tickrate(self.tickrate_entry.get())
@@ -73,45 +71,45 @@ class SideFrame(tk.Frame):
         return self.update_tickrate(e)
 
     def apply_settings_cmd(self):
-        self.master.board.stop()
+        board.stop()
         try:
             new_width = int(self.board_width_entry.get())
         except ValueError:
             pass
         else:
             new_width = clamp_int(new_width, 50, 1280)
-            self.master.board.board_width = new_width
+            board.board_width = new_width
         try:
             new_height = int(self.board_height_entry.get())
         except ValueError:
             pass
         else:
             new_height = clamp_int(new_height, 50, 1024)
-            self.master.board.board_height = new_height
+            board.board_height = new_height
         try:
             new_cell_w = int(self.gui.side_frame.cell_width_entry.get())
         except ValueError:
             pass
         else:
             new_cell_w = clamp_int(new_cell_w, 1, 1280)
-            self.master.board.cell_width = new_cell_w
+            board.cell_width = new_cell_w
         try:
             new_cell_h = int(self.gui.side_frame.cell_height_entry.get())
         except ValueError:
             pass
         else:
             new_cell_h = clamp_int(new_cell_h, 1, 1024)
-            self.master.board.cell_height = new_cell_h
+            board.cell_height = new_cell_h
 
         self.board_width_entry.delete(0, tk.END)
         self.board_height_entry.delete(0, tk.END)
         self.cell_width_entry.delete(0, tk.END)
         self.cell_height_entry.delete(0, tk.END)
-        self.board_width_entry.insert(0, self.board_width)
+        self.board_width_entry.insert(0, board.board_width)
         self.board_height_entry.insert(0, self.board_height)
         self.cell_width_entry.insert(0, self.cell_width)
         self.cell_height_entry.insert(0, self.cell_height)
-        self.master.board.reset()
+        board.reset()
 
     def __init__(self, parent, outline_bool):
         super().__init__(parent, padx=10, pady=10)
@@ -132,14 +130,12 @@ class SideFrame(tk.Frame):
         self.rules_button = tk.Button(self, text="Rules")
         self.apply_settings_button = ApplySettingsButton(self)
         # configure
-        self.board_width_entry.insert(0, self.board_width)
-        self.board_height_entry.insert(0, self.board_height)
-        self.cell_width_entry.insert(0, self.cell_width)
-        self.cell_height_entry.insert(0, self.cell_height)
+        self.board_width_entry.insert(0, board.board_width)
+        self.board_height_entry.insert(0, board.board_height)
+        self.cell_width_entry.insert(0, board.cell_width)
+        self.cell_height_entry.insert(0, board.cell_height)
         self.tickrate_scale.configure(command=self.tickrate_scale_cmd)
         self.tickrate_entry.bind('<Return>', self.tickrate_entry_cmd)
-        self.tickrate_entry.insert(0, self.tickrate)
-        self.tickrate_scale.set(self.tickrate)
         self.apply_settings_button.configure(command=self.apply_settings_cmd)
         # pack
         self._pack_board_size_widgets()

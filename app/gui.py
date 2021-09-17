@@ -14,8 +14,8 @@ class Gui(tk.Frame):
         self.master.title("Cellular automata - tkinter test")
         # outline_bool in this scope due to struggle with toggle box
         self.master.board = board
-        self.outline_bool = tk.IntVar()
-        self.outline_bool.set(1)
+        self.outline_bool = tk.BooleanVar()
+        self.outline_bool.set(True)
         # frame instantiations
         self.side_frame = SideFrame(self, self.outline_bool)
         self.canvas_frame = CanvasFrame(self)
