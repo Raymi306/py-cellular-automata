@@ -1,12 +1,14 @@
 import tkinter as tk
 
 from app.frames.util import entry_int_checker
+from app.board import board
 
 
 class ClearButton(tk.Button):
 
     def cmd(self):
-        self.master.board.clear()
+        board.reset()
+        self.event_generate('<<draw_once>>')
 
     def __init__(self, parent):
         super().__init__(parent, text='Clear', command=self.cmd, padx=15)
@@ -27,12 +29,11 @@ class RunButton(tk.Button):
         self.set_stopped_style()
 
     def cmd(self):
-        if self.master.board.is_running():
-            self.master.board.stop()
+        if board.is_running:
+            self.set_stopped_style()
         else:
-            self.master.board.is_running = True
             self.set_running_style()
-            self.master.board.run()
+        board.run(self)
 
     def set_running_style(self):
         self.config(**self.running_config)
@@ -44,7 +45,7 @@ class RunButton(tk.Button):
 class StepButton(tk.Button):
 
     def cmd(self):
-        self.master.board.step()
+        self.event_generate('<<draw_once>>')
 
     def __init__(self, parent):
         super().__init__(
@@ -54,8 +55,8 @@ class StepButton(tk.Button):
 
 
 class TimestepEntry(tk.Entry):
-    def cmd(self):
-        self.master.board.timestep = int(self.get())
+    def cmd(self, *args):
+        board.timestep = int(self.get())
 
     def __init__(self, parent):
         super().__init__(
@@ -64,13 +65,15 @@ class TimestepEntry(tk.Entry):
                 justify="center",
                 validate="key",
                 vcmd=parent.vcmd)
+        self.insert(0, board.timestep)
         self.bind('<Return>', self.cmd)
 
 
 class RandomizeButton(tk.Button):
 
     def cmd(self):
-        self.master.board.randomize()
+        board.randomize()
+        self.event_generate('<<draw_once>>')
 
     def __init__(self, parent):
         super().__init__(parent, text='Randomize', command=self.cmd)

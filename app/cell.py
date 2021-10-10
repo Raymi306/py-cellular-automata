@@ -9,15 +9,10 @@ class Cell(object):
             'colors',
             )
 
-    @property
-    def color(self):
-        return self.colors[self.lifetime]
-
     def __init__(self, colors):
         self.state = 0
         self.lifetime = 0
         self.previous_lifetime = 0
-        self.colors = colors
 
     def __str__(self):
         return(
