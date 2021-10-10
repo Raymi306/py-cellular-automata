@@ -7,28 +7,28 @@ class CanvasFrame(tk.Frame):
 
     def canvas_click_handler(self, event):
         x, y = (event.x, event.y)
-        if x > board.board_width:
-            x = board.board_width
-        if y > board.board_height:
-            y = board.board_height
         x_index = 0 if not x else x // board.cell_width
         y_index = 0 if not y else y // board.cell_height
         index = x_index + (y_index * board.max_x_pos)
-        cell = board.cells[index]
-        cell.toggle()
-        self.draw_one(index)
+        try:
+            cell = board.cells[index]
+        except IndexError:
+            pass
+        else:
+            cell.toggle()
+            self.draw_one(index)
 
     def canvas_debug_click_handler(self, event, *args):
         x, y = (event.x, event.y)
-        if x > board.board_width:
-            x = board.board_width
-        if y > board.board_height:
-            y = board.board_height
         x_index = 0 if not x else x // board.cell_width
         y_index = 0 if not y else y // board.cell_height
         index = x_index + (y_index * board.max_x_pos)
-        alive_neighbors = board.get_alive_neighbors(index)
-        print(f'i:{index}, {alive_neighbors} alive neighbors')
+        try:
+            alive_neighbors = board.get_alive_neighbors(index)
+        except IndexError:
+            pass
+        else:
+            print(f'i:{index}, {alive_neighbors} alive neighbors')
 
     def draw_continuous(self, *args):
         if board.is_running:
