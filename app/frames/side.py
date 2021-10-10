@@ -120,11 +120,12 @@ class SideFrame(tk.Frame):
     def draw_grid_callback(self):
         self.master.canvas_frame.draw_grid()
 
-    def __init__(self, parent, outline_bool):
+    def __init__(self, parent):
         super().__init__(parent, padx=10, pady=10)
         self.vcmd = self.register(entry_int_checker), '%S'
         self.popup = None
-        self.outline_bool = outline_bool
+        self.outline_bool = tk.BooleanVar()
+        self.outline_bool.set(True)
         # instantiate
         self._init_board_size_widgets()
         self._init_cell_size_widgets()

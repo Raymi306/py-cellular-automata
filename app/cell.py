@@ -5,21 +5,17 @@ class Cell(object):
     __slots__ = (
             'state',
             'lifetime',
-            'previous_lifetime',
-            'colors',
             )
 
-    def __init__(self, colors):
+    def __init__(self):
         self.state = 0
         self.lifetime = 0
-        self.previous_lifetime = 0
 
     def __str__(self):
         return(
                 f"""
                 state:{self.state}
                 lifetime:{self.lifetime}
-                previous_lifetime:{self.previous_lifetime}
                 """
                 )
 
@@ -31,7 +27,6 @@ class Cell(object):
             self.lifetime = 0
 
     def toggle(self):
-        self.previous_lifetime = self.lifetime
         if self.state:
             self.state = 0
             self.lifetime = 0
@@ -40,6 +35,5 @@ class Cell(object):
             self.lifetime = 1
 
     def reset(self):
-        self.previous_lifetime = self.lifetime
         self.state = 0
         self.lifetime = 0

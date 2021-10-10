@@ -73,7 +73,7 @@ class RandomizeButton(tk.Button):
 
     def cmd(self):
         board.randomize()
-        self.event_generate('<<draw_once>>')
+        self.event_generate('<<redraw>>')
 
     def __init__(self, parent):
         super().__init__(parent, text='Randomize', command=self.cmd)
