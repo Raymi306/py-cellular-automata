@@ -1,5 +1,6 @@
 import tkinter as tk
 
+from app.board import board
 
 class NeighborSelectorBox(tk.Label):
     def click_handler(self, e):
@@ -23,17 +24,17 @@ class NeighborSelectorBox(tk.Label):
 
 
 class NeighborSelectorFrame(tk.Frame):
+    def get_selection(self):
+        return [i for i in range(8) if self.neighbor_selectors[i].cget('state') == 'active']
+
     def __init__(self, parent):
         super().__init__(parent)
-        self.row1 = tk.Frame(self)
         self.nwn = NeighborSelectorBox(self)
         self.nn = NeighborSelectorBox(self)
         self.nen = NeighborSelectorBox(self)
-        self.row2 = tk.Frame(self)
         self.wn = NeighborSelectorBox(self)
         self.center = NeighborSelectorBox(self, bg='brown')
         self.en = NeighborSelectorBox(self)
-        self.row3 = tk.Frame(self)
         self.swn = NeighborSelectorBox(self)
         self.sn = NeighborSelectorBox(self)
         self.sen = NeighborSelectorBox(self)
@@ -45,19 +46,17 @@ class NeighborSelectorFrame(tk.Frame):
                 self.swn, self.sn, self.sen
                 ]
 
-        for widget in self.neighbors_selectors:
+        for widget in self.neighbor_selectors:
             widget.bind('<Button-1>', widget.click_handler)
 
-        _selectors = self.neighbor_selectors[:]
+        for i in board.neighborhood_func_indices:
+            self.neighbor_selectors[i].config(state='active')
+
+        _selectors = self.neighbor_selectors.copy()
         _selectors.insert(4, self.center)  # put center in between wn and en
 
-        for widget in _selectors:
-            widget.pack(side='left', padx=2, pady=2)
-
-        _rows = (self.row1, self.row2, self.row3)
-
-        for widget in _rows:
-            widget.pack()
+        for i, widget in enumerate(_selectors):
+            widget.grid(row=i//3, column=i % 3, padx=2, pady=2)
 
 
 class RuleListbox(tk.Listbox):
@@ -73,22 +72,39 @@ class RuleListbox(tk.Listbox):
             self.insert('end', f' {i}')
 
 
-class RulesPopup(tk.TopLevel):
-    def __init__(self, parent):
-        # intent of bare try-except is to avoid duplicates w/o singleton
-        # might not be needed
-        try:
-            self.destroy()
-        except:
-            pass
-        super().__init__(parent)
-        self.neighbor_selector = NeighborSelectorFrame(self)
-        self.apply_button = tk.Button(self, text='Apply')
-        self.born_listbox = RuleListbox(self)
-        self.survives_listbox = RuleListbox(self)
+class RulesPopup(tk.Toplevel):
+    def apply_callback(self, *args):
+        born = {i + 1 for i in self.born_listbox.curselection()}
+        board.born_ruleset = born
+        survives = {i + 1 for i in self.survives_listbox.curselection()}
+        board.survives_ruleset = survives
+        rules = (set(born), set(survives))
+        board.current_rule = board.define_rules(rules)
+        neighbors = self.neighbor_selector.get_selection()
+        board.neighborhood_func_indices = neighbors
+        board.current_neighborhood = board.define_neighborhood(neighbors)
 
-        self.neighbor_selector.pack(side='left', anchor='nw')
-        self.rule_selector.pack(side='left', anchor='nw', padx=10)
-        self.born_listbox.pack(side='left')
-        self.survives_listbox.pack(side='left')
-        self.apply_button.pack()  # TODO no apply hook
+    def __init__(self):
+        super().__init__()
+        self.neighbor_selector = NeighborSelectorFrame(self)
+        self.neighborhood_label = tk.Label(self, text='Neighborhood')
+        self.apply_button = tk.Button(
+                self, text='Apply',
+                command=self.apply_callback
+                )
+        self.born_listbox = RuleListbox(self)
+        self.born_label = tk.Label(self, text='Born')
+        for i in board.born_ruleset:
+            self.born_listbox.selection_set(i-1, last=None)
+        self.survives_listbox = RuleListbox(self)
+        self.survives_label = tk.Label(self, text='Survive')
+        for i in board.survives_ruleset:
+            self.survives_listbox.selection_set(i-1, last=None)
+
+        self.neighborhood_label.grid(row=0, columnspan=3)
+        self.neighbor_selector.grid(row=1, columnspan=3)
+        self.born_label.grid(row=0, column=4)
+        self.born_listbox.grid(row=1, column=4)
+        self.survives_label.grid(row=0, column=5)
+        self.survives_listbox.grid(row=1, column=5)
+        self.apply_button.grid(row=2, columnspan=6, pady=4, sticky=tk.E+tk.W+tk.S)

@@ -1,7 +1,9 @@
 import tkinter as tk
 
-from app.board import board
+from app.board import board, PALETTES
 from app.frames.util import entry_int_checker, clamp_int
+from app.frames.rules import RulesPopup
+
 
 class TickrateEntry(tk.Entry):
 
@@ -41,22 +43,24 @@ class ApplySettingsButton(tk.Button):
 
 
 class CellColorSelector(tk.Menubutton):
+    def menu_callback(self, key):
+        board.current_color = PALETTES[key]
+        self.event_generate('<<redraw>>')
+
     def __init__(self, parent):
         super().__init__(parent, text="Cell Colors", relief="raised")
         self.menu = tk.Menu(self, tearoff=0)
-        self.menu.add_command(label="Blk")
-        self.menu.add_command(label="Red")
-        self.menu.add_command(label="Blu")
-        self.menu.add_command(label="Grn")
-        self.menu.add_command(label="Bkg")
-        self.menu.add_command(label="Rbw")
+        for color in PALETTES.keys():
+            self.menu.add_command(
+                    label=color,
+                    command=lambda color=color: self.menu_callback(color)
+                    )
         self["menu"] = self.menu
 
 
 class SideFrame(tk.Frame):
 
     def update_tickrate(self, new_tickrate):
-        # TODO figure out TK variables
         try:
             new_tickrate = int(new_tickrate)
         except ValueError:
@@ -87,14 +91,14 @@ class SideFrame(tk.Frame):
             new_height = clamp_int(new_height, 50, 1024)
             board.board_height = new_height
         try:
-            new_cell_w = int(self.gui.side_frame.cell_width_entry.get())
+            new_cell_w = int(self.cell_width_entry.get())
         except ValueError:
             pass
         else:
             new_cell_w = clamp_int(new_cell_w, 1, 1280)
             board.cell_width = new_cell_w
         try:
-            new_cell_h = int(self.gui.side_frame.cell_height_entry.get())
+            new_cell_h = int(self.cell_height_entry.get())
         except ValueError:
             pass
         else:
@@ -106,14 +110,20 @@ class SideFrame(tk.Frame):
         self.cell_width_entry.delete(0, tk.END)
         self.cell_height_entry.delete(0, tk.END)
         self.board_width_entry.insert(0, board.board_width)
-        self.board_height_entry.insert(0, self.board_height)
-        self.cell_width_entry.insert(0, self.cell_width)
-        self.cell_height_entry.insert(0, self.cell_height)
+        self.board_height_entry.insert(0, board.board_height)
+        self.cell_width_entry.insert(0, board.cell_width)
+        self.cell_height_entry.insert(0, board.cell_height)
         board.reset()
+        self.master.reset()
+        self.master.canvas_frame.reset()
+
+    def draw_grid_callback(self):
+        self.master.canvas_frame.draw_grid()
 
     def __init__(self, parent, outline_bool):
         super().__init__(parent, padx=10, pady=10)
         self.vcmd = self.register(entry_int_checker), '%S'
+        self.popup = None
         self.outline_bool = outline_bool
         # instantiate
         self._init_board_size_widgets()
@@ -125,9 +135,14 @@ class SideFrame(tk.Frame):
                 self,
                 text="Cell Outline",
                 variable=self.outline_bool,
+                command=self.draw_grid_callback,
                 relief="raised")
         self.cell_color_selector = CellColorSelector(self)
-        self.rules_button = tk.Button(self, text="Rules")
+        self.rules_button = tk.Button(
+                self,
+                text="Rules",
+                command=self._init_rule_popup,
+                )
         self.apply_settings_button = ApplySettingsButton(self)
         # configure
         self.board_width_entry.insert(0, board.board_width)
@@ -147,6 +162,14 @@ class SideFrame(tk.Frame):
         self.cell_color_selector.pack(pady=3)
         self.rules_button.pack()
         self.apply_settings_button.pack(side="bottom")
+
+    def _init_rule_popup(self):
+        """avoid duplicate popups"""
+        try:
+            self.popup.destroy()
+        except AttributeError:
+            pass
+        self.popup = RulesPopup()
 
     def _init_board_size_widgets(self):
         self.board_width_label = tk.Label(

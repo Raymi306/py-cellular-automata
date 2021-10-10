@@ -7,29 +7,62 @@ class CanvasFrame(tk.Frame):
 
     def canvas_click_handler(self, event):
         x, y = (event.x, event.y)
+        if x > board.board_width:
+            x = board.board_width
+        if y > board.board_height:
+            y = board.board_height
         x_index = 0 if not x else x // board.cell_width
         y_index = 0 if not y else y // board.cell_height
         index = x_index + (y_index * board.max_x_pos)
         cell = board.cells[index]
-        print(x, y, x_index, y_index, cell)
         cell.toggle()
         self.draw_one(index)
 
+    def canvas_debug_click_handler(self, event, *args):
+        x, y = (event.x, event.y)
+        if x > board.board_width:
+            x = board.board_width
+        if y > board.board_height:
+            y = board.board_height
+        x_index = 0 if not x else x // board.cell_width
+        y_index = 0 if not y else y // board.cell_height
+        index = x_index + (y_index * board.max_x_pos)
+        alive_neighbors = board.get_alive_neighbors(index)
+        print(f'i:{index}, {alive_neighbors} alive neighbors')
+
+    def draw_continuous(self, *args):
+        if board.is_running:
+            self.draw_continuous_callback = \
+                    self.canvas.after(board.tickrate, self.step_and_draw_loop)
+        else:
+            self.canvas.after_cancel(self.draw_continuous_callback)
+
     def __init__(self, parent):
         super().__init__(parent)
+        self.draw_continuous_callback = None
         self.canvas = tk.Canvas(self, bg='#bbbbbb')
         self.canvas.pack(expand=1)
-        self.canvas.bind("<Button-1>", self.canvas_click_handler)
+        self.canvas.bind('<Button-1>', self.canvas_click_handler)
+        self.canvas.bind('<Button-3>', self.canvas_debug_click_handler)
+        self.event_add('<<draw_once>>', [None])
+        self.event_add('<<draw_continuous>>', [None])
+        self.event_add('<<redraw>>', [None])
+        self.bind_all('<<draw_once>>', self.step_and_draw)
+        self.bind_all('<<draw_continuous>>', self.draw_continuous)
+        self.bind_all('<<redraw>>', self.draw)
         self.cells = []
-        self.generate_cell_view()
+        self.grid_lines = []
+        self.reset()
 
     def draw_one(self, index):
+        colors = board.current_color
         cell = board.cells[index]
-        color = cell.color
+        color = colors[cell.lifetime]
         cell_view = self.cells[index]
         self.canvas.itemconfig(cell_view, fill=color)
 
-    def draw(self):
+    def draw(self, *args):
+        colors = board.current_color
         col_height = board.max_y_pos
         row_width = board.max_x_pos
         for y in range(0, col_height):
@@ -37,8 +70,27 @@ class CanvasFrame(tk.Frame):
                 index = x + (y * row_width)
                 if cell := board.cells[index]:
                     cell_view = self.cells[index]
-                    if self.itemcget(cell_view, 'fill') != (color := cell.color):
-                        self.itemconfig(cell_view, fill=color)
+                    color = colors[cell.lifetime]
+                    self.canvas.itemconfig(cell_view, fill=color)
+
+    def step_and_draw_loop(self, *args):
+        self.step_and_draw()
+        self.draw_continuous_callback = self.canvas.after(
+                board.tickrate,
+                self.step_and_draw_loop
+                )
+
+    def step_and_draw(self, *args):
+        board.step()
+        self.draw()
+
+    def draw_grid(self):
+        if self.master.side_frame.outline_bool.get():
+            state = "normal"
+        else:
+            state = "hidden"
+        for line in self.grid_lines:
+            self.canvas.itemconfig(line, state=state)
 
     def generate_cell_view(self):
         cell_view = []
@@ -54,25 +106,43 @@ class CanvasFrame(tk.Frame):
                     fill=board.current_color[0],
                     outline='',)
                     )
-        self.cells = cell_view
+        return cell_view
 
     def generate_grid(self):
         grid = []
         color = "white"
 
-        if self.master.gui.side_frame.outline_bool.get():
+        if self.master.side_frame.outline_bool.get():
             state = "normal"
         else:
             state = "hidden"
 
         if len(board.grid):
-            for line in self.grid:
-                del(line)
+            del self.grid_lines
+            self.grid_lines = []
 
         for y in range(0, board.board_height, board.cell_height):
-            grid.append(self.gui.canvas.create_line(0, y, self.board_width, y, fill=color, state=state))
+            grid.append(self.canvas.create_line(
+                0, y,
+                board.board_width, y,
+                fill=color, state=state)
+                )
 
         for x in range(0, board.board_width, board.cell_width):
-            grid.append(self.gui.canvas.create_line(x, 0, x, self.board_height, fill=color, state=state))
+            grid.append(self.canvas.create_line(
+                x, 0,
+                x, board.board_height,
+                fill=color, state=state))
 
         return tuple(grid)
+
+    def update_canvas_dim(self, width, height):
+        self.canvas.delete("all")
+        self.canvas.configure(width=width, height=height)
+        self.update_idletasks()
+
+    def reset(self):
+        self.canvas.delete('all')
+        self.update_canvas_dim(board.board_width, board.board_height)
+        self.cells = self.generate_cell_view()
+        self.grid_lines = self.generate_grid()

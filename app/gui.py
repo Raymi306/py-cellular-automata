@@ -33,10 +33,7 @@ class Gui(tk.Frame):
         # TODO implement logging
         print(f"window width/height{(self.master.winfo_width(), self.master.winfo_height())}")  # noqa: E501 line length
 
-    def update_canvas_dim(self, width, height):
-        self.canvas.delete("all")
-        self.canvas.configure(width=width, height=height)
-        self.update_idletasks()
+    def reset(self):
         w_width = self.master.winfo_reqwidth()
         w_height = self.master.winfo_reqheight()
         self.master.minsize(w_width, w_height)
