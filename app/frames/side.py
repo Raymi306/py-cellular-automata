@@ -68,13 +68,13 @@ class SideFrame(tk.Frame):
         new_tickrate = clamp_int(new_tickrate, 1, 9999)
         board.tk_str_tickrate.set(new_tickrate)
 
-    def tickrate_entry_cmd(self):
+    def tickrate_entry_cmd(self, *args):
         return self.update_tickrate(self.tickrate_entry.get())
 
     def tickrate_scale_cmd(self, e):
         return self.update_tickrate(e)
 
-    def apply_settings_cmd(self):
+    def apply_settings_cmd(self, *args):
         board.stop()
         try:
             new_width = int(self.board_width_entry.get())
@@ -92,6 +92,8 @@ class SideFrame(tk.Frame):
             board.board_height = new_height
         try:
             new_cell_w = int(self.cell_width_entry.get())
+            if new_width % new_cell_w != 0:
+                raise ValueError('Please keep board dimensions evenly divisible by cell dimensions')
         except ValueError:
             pass
         else:
@@ -99,6 +101,9 @@ class SideFrame(tk.Frame):
             board.cell_width = new_cell_w
         try:
             new_cell_h = int(self.cell_height_entry.get())
+            new_cell_w = int(self.cell_width_entry.get())
+            if new_height % new_cell_h != 0:
+                raise ValueError('Please keep board dimensions evenly divisible by cell dimensions')
         except ValueError:
             pass
         else:
