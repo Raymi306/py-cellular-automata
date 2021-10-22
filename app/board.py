@@ -21,21 +21,8 @@ class Board:
     def total_cells(self):
         return self.max_x_pos * self.max_y_pos
 
-    @cached_property
-    def tk_str_tickrate(self):
-        """
-        cached property so default tk root is available during first access
-        """
-        var = tk.StringVar()
-        var.set('100')
-        return var
-
-    @property
-    def tickrate(self):
-        """Any uses of tk_str_tickrate should validate that it is an int"""
-        return int(self.tk_str_tickrate.get())
-
     def __init__(self):
+        self.tickrate = None
         self.board_width = 480
         self.board_height = 480
         self.cell_width = 30

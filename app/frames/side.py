@@ -8,19 +8,23 @@ from app.palettes import PALETTES
 
 class TickrateEntry(tk.Entry):
 
-    def __init__(self, parent):
+    def set_tickrate(self):
+        board.tickrate = int(self.string_var.get())
+
+    def __init__(self, parent, var):
         super().__init__(
                 parent,
                 width=4,
                 justify="center",
                 validate="key",
                 vcmd=parent.vcmd,
-                textvariable=board.tk_str_tickrate)
+                textvariable=var,
+                )
 
 
 class TickrateScale(tk.Scale):
 
-    def __init__(self, parent):
+    def __init__(self, parent, var):
         super().__init__(
                 parent,
                 from_=500,
@@ -29,7 +33,8 @@ class TickrateScale(tk.Scale):
                 showvalue=0,
                 sliderlength=15,
                 bd=0,
-                variable=board.tk_str_tickrate)
+                variable=var,
+                )
 
 
 class ApplySettingsButton(tk.Button):
@@ -61,19 +66,8 @@ class CellColorSelector(tk.Menubutton):
 
 class SideFrame(tk.Frame):
 
-    def update_tickrate(self, new_tickrate):
-        try:
-            new_tickrate = int(new_tickrate)
-        except ValueError:
-            pass
-        new_tickrate = clamp_int(new_tickrate, 1, 9999)
-        board.tk_str_tickrate.set(new_tickrate)
-
-    def tickrate_entry_cmd(self, *args):
-        return self.update_tickrate(self.tickrate_entry.get())
-
-    def tickrate_scale_cmd(self, e):
-        return self.update_tickrate(e)
+    def set_tickrate(self, *args):
+        board.tickrate = int(self.string_var.get())
 
     def apply_settings_cmd(self, *args):
         board.stop()
@@ -128,6 +122,9 @@ class SideFrame(tk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent, padx=10, pady=10)
+        self.string_var = tk.StringVar()
+        self.string_var.trace('w', self.set_tickrate)
+        self.string_var.set('100')
         self.vcmd = self.register(entry_int_checker), '%S'
         self.popup = None
         self.outline_bool = tk.BooleanVar()
@@ -136,8 +133,8 @@ class SideFrame(tk.Frame):
         self._init_board_size_widgets()
         self._init_cell_size_widgets()
         self.tickrate_label = tk.Label(self, text="Tickrate", relief="ridge")
-        self.tickrate_entry = TickrateEntry(self)
-        self.tickrate_scale = TickrateScale(self)
+        self.tickrate_entry = TickrateEntry(self, self.string_var)
+        self.tickrate_scale = TickrateScale(self, self.string_var)
         self.outline_toggle_box = tk.Checkbutton(
                 self,
                 text="Cell Outline",
@@ -156,8 +153,6 @@ class SideFrame(tk.Frame):
         self.board_height_entry.insert(0, board.board_height)
         self.cell_width_entry.insert(0, board.cell_width)
         self.cell_height_entry.insert(0, board.cell_height)
-        self.tickrate_scale.configure(command=self.tickrate_scale_cmd)
-        self.tickrate_entry.bind('<Return>', self.tickrate_entry_cmd)
         self.apply_settings_button.configure(command=self.apply_settings_cmd)
         # pack
         self._pack_board_size_widgets()
