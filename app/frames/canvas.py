@@ -68,10 +68,10 @@ class CanvasFrame(tk.Frame):
         for y in range(0, col_height):
             for x in range(0, row_width):
                 index = x + (y * row_width)
-                if cell := board.cells[index]:
-                    cell_view = self.cells[index]
-                    color = colors[cell.lifetime]
-                    self.canvas.itemconfig(cell_view, fill=color)
+                cell = board.cells[index]
+                cell_view = self.cells[index]
+                color = colors[cell.lifetime]
+                self.canvas.itemconfig(cell_view, fill=color)
 
     def step_and_draw_loop(self, *args):
         self.step_and_draw()
