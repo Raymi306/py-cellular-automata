@@ -1,8 +1,9 @@
 import tkinter as tk
 
-from app.board import board, PALETTES
+from app.board import board
 from app.frames.util import entry_int_checker, clamp_int
 from app.frames.rules import RulesPopup
+from app.palettes import PALETTES
 
 
 class TickrateEntry(tk.Entry):

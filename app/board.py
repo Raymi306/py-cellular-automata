@@ -4,17 +4,7 @@ import random
 import tkinter as tk
 
 from app.cell import Cell
-
-
-PALETTES = {
-        'blk': ['', 'black', 'black', 'black', 'black', 'black', 'black'],
-        'red': ['', '#ffaaaa', '#d46a6a', '#aa3939', '#801515', '#550000', 'black'],
-        'blu': ['', '#9277ac', '#6f4d8f', '#512c73', '#361356', '#200439', 'black'],
-        'grn': ['', '#98ff11', '#54cc0a', '#229e06', '#18560a', '#0e3006', 'black'],
-        'tan': ['', '#b2b1a4', '#b2b1a4', '#b2b1a4', '#b2b1a4', '#b2b1a4', '#b2b1a4'],
-        'rbw': ['', '#e70000', '#ff8c00', '#ffef00', '#00811f', '#0044ff', '#760089'],
-        'eva': ['', '#764b8e', '#a5c663', '#d4c26a', '#582a72', '#7b9f35', '#aa9739'],
-        }
+from app.palettes import PALETTES
 
 
 class Board:
