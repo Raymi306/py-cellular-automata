@@ -75,9 +75,8 @@ class Board:
                 cell_future.tick(alive_neighbors, self.current_rule)
             self.cells = cells_future
 
-    def run(self, tk_instance):
-        self.is_running = not self.is_running
-        tk_instance.event_generate('<<draw_continuous>>')
+    def run(self):
+        self.is_running = True
 
     def stop(self):
         self.is_running = False

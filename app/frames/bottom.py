@@ -30,10 +30,12 @@ class RunButton(tk.Button):
 
     def cmd(self):
         if board.is_running:
+            board.is_running = False
             self.set_stopped_style()
         else:
+            board.is_running = True
             self.set_running_style()
-        board.run(self)
+        self.event_generate('<<draw_continuous>>')
 
     def set_running_style(self):
         self.config(**self.running_config)
