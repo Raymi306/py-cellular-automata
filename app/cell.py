@@ -13,10 +13,7 @@ class Cell(object):
 
     def __str__(self):
         return(
-                f"""
-                state:{self.state}
-                lifetime:{self.lifetime}
-                """
+                f'state:{self.state}, lifetime:{self.lifetime}'
                 )
 
     def tick(self, alive_neighbors, rule):
