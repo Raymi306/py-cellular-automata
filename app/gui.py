@@ -28,5 +28,4 @@ class Gui(tk.Frame):
         w_width = self.master.winfo_reqwidth()
         w_height = self.master.winfo_reqheight()
         self.master.minsize(w_width, w_height)
-        # TODO implement logging
-        print(f"window width/height{(self.master.winfo_width(), self.master.winfo_height())}")  # noqa: E501 line length
+        print(f"window width/height: {self.master.winfo_width()}/{self.master.winfo_height()}")  # noqa: E501 line length

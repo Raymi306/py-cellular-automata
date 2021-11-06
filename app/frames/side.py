@@ -70,7 +70,6 @@ class SideFrame(tk.Frame):
         board.tickrate = int(self.string_var.get())
 
     def apply_settings_cmd(self, *args):
-        board.stop()
         try:
             new_width = int(self.board_width_entry.get())
         except ValueError:

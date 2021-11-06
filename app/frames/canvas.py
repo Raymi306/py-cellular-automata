@@ -143,6 +143,8 @@ class CanvasFrame(tk.Frame):
 
     def reset(self):
         self.canvas.delete('all')
+        if self.draw_continuous_callback:
+            self.canvas.after_cancel(self.draw_continuous_callback)
         self.update_canvas_dim(board.board_width, board.board_height)
         self.cells = self.generate_cell_view()
         self.grid_lines = self.generate_grid()

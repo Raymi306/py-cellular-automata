@@ -2,6 +2,7 @@ import tkinter as tk
 
 from app.board import board
 
+
 class NeighborSelectorBox(tk.Label):
     def click_handler(self, e):
         if e.widget.cget('state') == 'normal':
@@ -108,3 +109,6 @@ class RulesPopup(tk.Toplevel):
         self.survives_label.grid(row=0, column=5)
         self.survives_listbox.grid(row=1, column=5)
         self.apply_button.grid(row=2, columnspan=6, pady=4, sticky=tk.E+tk.W+tk.S)
+        self.update_idletasks()
+        self.minsize(self.winfo_reqwidth(), self.winfo_reqheight())
+        self.maxsize(self.winfo_reqwidth(), self.winfo_reqheight())
