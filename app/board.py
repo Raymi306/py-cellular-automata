@@ -1,10 +1,10 @@
 from copy import deepcopy
-from functools import cached_property
 import random
-import tkinter as tk
 
 from app.cell import Cell
 from app.palettes import PALETTES
+import app.neighborhoods.wrap as wrapping_neighborhood
+import app.neighborhoods.nowrap as nowrap_neighborhood
 
 
 class Board:
@@ -54,8 +54,8 @@ class Board:
         cells = []
         if self.cells:
             del self.cells
-        for _y in range(0, self.board_height, self.cell_height):
-            for _x in range(0, self.board_width, self.cell_width):
+        for _ in range(0, self.board_height, self.cell_height):
+            for _ in range(0, self.board_width, self.cell_width):
                 cells.append(Cell())
         return tuple(cells)
 
@@ -63,12 +63,15 @@ class Board:
         neighbor_indices = self.current_neighborhood(index)
         alive_neighbors = 0
         for i in neighbor_indices:
-            if self.cells[i].state != 0:
-                alive_neighbors += 1
+            try:
+                if self.cells[i].state != 0:
+                    alive_neighbors += 1
+            except IndexError:
+                pass
         return alive_neighbors
 
     def step(self):
-        for _i in range(self.timestep):
+        for _ in range(self.timestep):
             cells_future = deepcopy(self.cells)
             for i, cell_future in enumerate(cells_future):
                 alive_neighbors = self.get_alive_neighbors(i)
@@ -84,103 +87,11 @@ class Board:
     def reset(self):
         self.cells = self.generate_cells()
 
-    def get_nw(self, index):
-        default_case = index - self.max_x_pos - 1
-
-        if index < self.max_x_pos\
-                and index % self.max_x_pos != 0:  # top row exclude top left
-            return default_case + self.total_cells
-        elif index % self.max_x_pos == 0:  # left col
-            left_col_case = index - 1
-            if left_col_case < 0:  # top left...
-                return self.total_cells - 1
-            else:
-                return left_col_case
-        else:
-            return default_case
-
-    def get_ne(self, index):
-        default_case = index - self.max_x_pos + 1
-        # exclude corner
-        if index < self.max_x_pos\
-                and index % self.max_x_pos != self.max_x_pos - 1:
-            return default_case + self.total_cells
-        elif index % self.max_x_pos == self.max_x_pos - 1:
-            right_col_case = default_case - self.max_x_pos
-            if right_col_case < 0:
-                return self.total_cells + right_col_case
-            else:
-                return right_col_case
-        else:
-            return default_case
-
-    def get_sw(self, index):
-        default_case = index + self.max_x_pos - 1
-        # bot row exclude bot left
-        if index + self.max_x_pos >= self.total_cells\
-                and index % self.max_x_pos != 0:
-            return default_case - self.total_cells
-        elif index % self.max_x_pos == 0:  # left col
-            left_col_case = default_case + self.max_x_pos
-            if left_col_case >= self.total_cells:
-                return self.max_x_pos - 1
-            else:
-                return left_col_case
-        else:
-            return default_case
-
-    def get_se(self, index):
-        default_case = index + self.max_x_pos + 1
-
-        # bot row exclude bot right
-        if index + self.max_x_pos >= self.total_cells\
-                and index % self.max_x_pos != self.max_x_pos - 1:
-            return default_case - self.total_cells
-        elif index % self.max_x_pos == self.max_x_pos - 1:  # right col
-            right_col_case = default_case - self.max_x_pos
-            if right_col_case >= self.total_cells:
-                return 0
-            else:
-                return right_col_case
-        else:
-            return default_case
-
-    def get_n(self, index):
-        if index >= self.max_x_pos:
-            return index - self.max_x_pos
-        else:
-            return index + self.total_cells - self.max_x_pos
-
-    def get_w(self, index):
-        if index - 1 >= 0\
-                and (index - 1) % self.max_x_pos != self.max_x_pos - 1:
-            return index - 1
-        else:
-            return index + self.max_x_pos - 1
-
-    def get_e(self, index):
-        if (index + 1) % self.max_x_pos != 0\
-           and index + 1 < self.total_cells:
-            return index + 1
-        else:
-            return index - self.max_x_pos + 1
-
-    def get_s(self, index):
-        if (index + self.max_x_pos) < self.total_cells:
-            return index + self.max_x_pos
-        else:
-            return index - self.total_cells + self.max_x_pos
-
-    neighbor_functions = (
-            get_nw, get_n, get_ne, get_w, get_e, get_sw, get_s, get_se
-            )
-
-    def define_neighborhood(self, neighborhood_func_indices):
+    def define_neighborhood(self, neighborhood_func_indices, wrap=True):
         def neighborhood(index):
-            indices = []
-            for i in neighborhood_func_indices:
-                indices.append(self.neighbor_functions[i](self, index))
-            return indices
+            neighbor_functions = wrapping_neighborhood.functions\
+                    if wrap else nowrap_neighborhood.functions
+            return [neighbor_functions[i](self, index) for i in neighborhood_func_indices]
         return neighborhood
 
     def define_rules(self, bs_tuple):
