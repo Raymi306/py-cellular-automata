@@ -18,22 +18,10 @@ class CanvasFrame(tk.Frame):
             cell.toggle()
             self.draw_one(index)
 
-    def canvas_debug_click_handler(self, event, *args):
-        x, y = (event.x, event.y)
-        x_index = 0 if not x else x // board.cell_width
-        y_index = 0 if not y else y // board.cell_height
-        index = x_index + (y_index * board.max_x_pos)
-        try:
-            alive_neighbors = board.get_alive_neighbors(index)
-        except IndexError:
-            pass
-        else:
-            print(f'i:{index}, {alive_neighbors} alive neighbors')
-
     def draw_continuous(self, *args):
         if board.is_running:
             self.draw_continuous_callback = \
-                    self.canvas.after(board.tickrate, self.step_and_draw_loop)
+                self.canvas.after(board.tickrate, self.step_and_draw_loop)
         else:
             self.canvas.after_cancel(self.draw_continuous_callback)
 
@@ -43,7 +31,6 @@ class CanvasFrame(tk.Frame):
         self.canvas = tk.Canvas(self, bg='#bbbbbb')
         self.canvas.pack(expand=1)
         self.canvas.bind('<Button-1>', self.canvas_click_handler)
-        self.canvas.bind('<Button-3>', self.canvas_debug_click_handler)
         self.event_add('<<draw_once>>', [None])
         self.event_add('<<draw_continuous>>', [None])
         self.event_add('<<redraw>>', [None])
@@ -76,9 +63,9 @@ class CanvasFrame(tk.Frame):
     def step_and_draw_loop(self, *args):
         self.step_and_draw()
         self.draw_continuous_callback = self.canvas.after(
-                board.tickrate,
-                self.step_and_draw_loop
-                )
+            board.tickrate,
+            self.step_and_draw_loop
+        )
 
     def step_and_draw(self, *args):
         board.step()
@@ -105,7 +92,7 @@ class CanvasFrame(tk.Frame):
                     x + width, y + height,
                     fill=board.current_color[0],
                     outline='',)
-                    )
+                )
         return cell_view
 
     def generate_grid(self):
@@ -126,13 +113,14 @@ class CanvasFrame(tk.Frame):
                 0, y,
                 board.board_width, y,
                 fill=color, state=state)
-                )
+            )
 
         for x in range(0, board.board_width, board.cell_width):
             grid.append(self.canvas.create_line(
                 x, 0,
                 x, board.board_height,
-                fill=color, state=state))
+                fill=color, state=state)
+            )
 
         return tuple(grid)
 

@@ -14,18 +14,21 @@ class NeighborSelectorBox(tk.Label):
 
     def __init__(self, parent, bg='gray'):
         super().__init__(
-                parent,
-                bg=bg,
-                activebackground='black',
-                width=4,
-                height=2,
-                relief='sunken'
-                )
+            parent,
+            bg=bg,
+            activebackground='black',
+            width=4,
+            height=2,
+            relief='sunken'
+        )
 
 
 class NeighborSelectorFrame(tk.Frame):
     def get_selection(self):
-        return [i for i in range(8) if self.neighbor_selectors[i].cget('state') == 'active']
+        return [
+            i for i in range(8)
+            if self.neighbor_selectors[i].cget('state') == 'active'
+        ]
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -89,9 +92,9 @@ class RulesPopup(tk.Toplevel):
         self.neighbor_selector = NeighborSelectorFrame(self)
         self.neighborhood_label = tk.Label(self, text='Neighborhood')
         self.apply_button = tk.Button(
-                self, text='Apply',
-                command=self.apply_callback
-                )
+            self, text='Apply',
+            command=self.apply_callback
+        )
         self.born_listbox = RuleListbox(self)
         self.born_label = tk.Label(self, text='Born')
         for i in board.born_ruleset:

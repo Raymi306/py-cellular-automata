@@ -1,7 +1,5 @@
 from copy import deepcopy
-from functools import cached_property
 import random
-import tkinter as tk
 
 from app.cell import Cell
 from app.palettes import PALETTES
@@ -34,19 +32,20 @@ class Board:
         self.born_ruleset = {3}
         self.survives_ruleset = {2, 3}
         self.current_rule = self.define_rules(
-                (self.born_ruleset, self.survives_ruleset)
-                )
+            (self.born_ruleset, self.survives_ruleset)
+        )
         self.neighborhood_func_indices = (0, 1, 2, 3, 4, 5, 6, 7)
         self.current_neighborhood = self.define_neighborhood(
-                self.neighborhood_func_indices
-                )
+            self.neighborhood_func_indices
+        )
         self.current_color = PALETTES['blk']
         self.reset()
 
     def randomize(self):
         lottery = random.sample(
-                self.cells,
-                random.randint(1, (self.total_cells - 1)))
+            self.cells,
+            random.randint(1, (self.total_cells - 1))
+        )
         for cell in lottery:
             cell.toggle()
 
@@ -172,8 +171,8 @@ class Board:
             return index - self.total_cells + self.max_x_pos
 
     neighbor_functions = (
-            get_nw, get_n, get_ne, get_w, get_e, get_sw, get_s, get_se
-            )
+        get_nw, get_n, get_ne, get_w, get_e, get_sw, get_s, get_se
+    )
 
     def define_neighborhood(self, neighborhood_func_indices):
         def neighborhood(index):
