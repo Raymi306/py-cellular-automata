@@ -4,7 +4,6 @@ from app.frames import BottomFrame, SideFrame, CanvasFrame
 
 
 class Gui(tk.Frame):
-
     current_canvas_callback = -1
     toplevel_rules = None
 
@@ -29,4 +28,6 @@ class Gui(tk.Frame):
         w_height = self.master.winfo_reqheight()
         self.master.minsize(w_width, w_height)
         # TODO implement logging
-        print(f"window width/height{(self.master.winfo_width(), self.master.winfo_height())}")  # noqa: E501 line length
+        print(
+            f"window width/height{(self.master.winfo_width(), self.master.winfo_height())}"
+        )

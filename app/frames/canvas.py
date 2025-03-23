@@ -4,7 +4,6 @@ from app.board import board
 
 
 class CanvasFrame(tk.Frame):
-
     def canvas_click_handler(self, event):
         x, y = (event.x, event.y)
         x_index = 0 if not x else x // board.cell_width
@@ -20,23 +19,24 @@ class CanvasFrame(tk.Frame):
 
     def draw_continuous(self, *args):
         if board.is_running:
-            self.draw_continuous_callback = \
-                self.canvas.after(board.tickrate, self.step_and_draw_loop)
+            self.draw_continuous_callback = self.canvas.after(
+                board.tickrate, self.step_and_draw_loop
+            )
         else:
             self.canvas.after_cancel(self.draw_continuous_callback)
 
     def __init__(self, parent):
         super().__init__(parent)
         self.draw_continuous_callback = None
-        self.canvas = tk.Canvas(self, bg='#bbbbbb')
+        self.canvas = tk.Canvas(self, bg="#bbbbbb")
         self.canvas.pack(expand=1)
-        self.canvas.bind('<Button-1>', self.canvas_click_handler)
-        self.event_add('<<draw_once>>', [None])
-        self.event_add('<<draw_continuous>>', [None])
-        self.event_add('<<redraw>>', [None])
-        self.bind_all('<<draw_once>>', self.step_and_draw)
-        self.bind_all('<<draw_continuous>>', self.draw_continuous)
-        self.bind_all('<<redraw>>', self.draw)
+        self.canvas.bind("<Button-1>", self.canvas_click_handler)
+        self.event_add("<<draw_once>>", [None])
+        self.event_add("<<draw_continuous>>", [None])
+        self.event_add("<<redraw>>", [None])
+        self.bind_all("<<draw_once>>", self.step_and_draw)
+        self.bind_all("<<draw_continuous>>", self.draw_continuous)
+        self.bind_all("<<redraw>>", self.draw)
         self.cells = []
         self.grid_lines = []
         self.reset()
@@ -63,8 +63,7 @@ class CanvasFrame(tk.Frame):
     def step_and_draw_loop(self, *args):
         self.step_and_draw()
         self.draw_continuous_callback = self.canvas.after(
-            board.tickrate,
-            self.step_and_draw_loop
+            board.tickrate, self.step_and_draw_loop
         )
 
     def step_and_draw(self, *args):
@@ -87,11 +86,15 @@ class CanvasFrame(tk.Frame):
         height = board.cell_height
         for y in range(0, board.board_height, height):
             for x in range(0, board.board_width, width):
-                cell_view.append(self.canvas.create_rectangle(
-                    x, y,
-                    x + width, y + height,
-                    fill=board.current_color[0],
-                    outline='',)
+                cell_view.append(
+                    self.canvas.create_rectangle(
+                        x,
+                        y,
+                        x + width,
+                        y + height,
+                        fill=board.current_color[0],
+                        outline="",
+                    )
                 )
         return cell_view
 
@@ -109,17 +112,17 @@ class CanvasFrame(tk.Frame):
             self.grid_lines = []
 
         for y in range(0, board.board_height, board.cell_height):
-            grid.append(self.canvas.create_line(
-                0, y,
-                board.board_width, y,
-                fill=color, state=state)
+            grid.append(
+                self.canvas.create_line(
+                    0, y, board.board_width, y, fill=color, state=state
+                )
             )
 
         for x in range(0, board.board_width, board.cell_width):
-            grid.append(self.canvas.create_line(
-                x, 0,
-                x, board.board_height,
-                fill=color, state=state)
+            grid.append(
+                self.canvas.create_line(
+                    x, 0, x, board.board_height, fill=color, state=state
+                )
             )
 
         return tuple(grid)
@@ -130,7 +133,7 @@ class CanvasFrame(tk.Frame):
         self.update_idletasks()
 
     def reset(self):
-        self.canvas.delete('all')
+        self.canvas.delete("all")
         self.update_canvas_dim(board.board_width, board.board_height)
         self.cells = self.generate_cell_view()
         self.grid_lines = self.generate_grid()

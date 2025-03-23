@@ -7,7 +7,6 @@ from app.palettes import PALETTES
 
 
 class TickrateEntry(tk.Entry):
-
     def set_tickrate(self):
         board.tickrate = int(self.string_var.get())
 
@@ -23,7 +22,6 @@ class TickrateEntry(tk.Entry):
 
 
 class TickrateScale(tk.Scale):
-
     def __init__(self, parent, var):
         super().__init__(
             parent,
@@ -38,35 +36,26 @@ class TickrateScale(tk.Scale):
 
 
 class ApplySettingsButton(tk.Button):
-
     def __init__(self, parent):
-        super().__init__(
-            parent,
-            text="Apply\nSettings",
-            command=None,
-            padx=10,
-            pady=10
-        )
+        super().__init__(parent, text="Apply\nSettings", command=None, padx=10, pady=10)
 
 
 class CellColorSelector(tk.Menubutton):
     def menu_callback(self, key):
         board.current_color = PALETTES[key]
-        self.event_generate('<<redraw>>')
+        self.event_generate("<<redraw>>")
 
     def __init__(self, parent):
         super().__init__(parent, text="Cell Colors", relief="raised")
         self.menu = tk.Menu(self, tearoff=0)
         for color in PALETTES.keys():
             self.menu.add_command(
-                label=color,
-                command=lambda color=color: self.menu_callback(color)
+                label=color, command=lambda color=color: self.menu_callback(color)
             )
         self["menu"] = self.menu
 
 
 class SideFrame(tk.Frame):
-
     def set_tickrate(self, *args):
         board.tickrate = int(self.string_var.get())
 
@@ -89,7 +78,9 @@ class SideFrame(tk.Frame):
         try:
             new_cell_w = int(self.cell_width_entry.get())
             if new_width % new_cell_w != 0:
-                raise ValueError('Please keep board dimensions evenly divisible by cell dimensions')
+                raise ValueError(
+                    "Please keep board dimensions evenly divisible by cell dimensions"
+                )
         except ValueError:
             pass
         else:
@@ -99,7 +90,9 @@ class SideFrame(tk.Frame):
             new_cell_h = int(self.cell_height_entry.get())
             new_cell_w = int(self.cell_width_entry.get())
             if new_height % new_cell_h != 0:
-                raise ValueError('Please keep board dimensions evenly divisible by cell dimensions')
+                raise ValueError(
+                    "Please keep board dimensions evenly divisible by cell dimensions"
+                )
         except ValueError:
             pass
         else:
@@ -124,9 +117,9 @@ class SideFrame(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padx=10, pady=10)
         self.string_var = tk.StringVar()
-        self.string_var.trace('w', self.set_tickrate)
-        self.string_var.set('100')
-        self.vcmd = self.register(entry_int_checker), '%S'
+        self.string_var.trace("w", self.set_tickrate)
+        self.string_var.set("100")
+        self.vcmd = self.register(entry_int_checker), "%S"
         self.popup = None
         self.outline_bool = tk.BooleanVar()
         self.outline_bool.set(True)
@@ -141,7 +134,7 @@ class SideFrame(tk.Frame):
             text="Cell Outline",
             variable=self.outline_bool,
             command=self.draw_grid_callback,
-            relief="raised"
+            relief="raised",
         )
         self.cell_color_selector = CellColorSelector(self)
         self.rules_button = tk.Button(
@@ -176,29 +169,13 @@ class SideFrame(tk.Frame):
         self.popup = RulesPopup()
 
     def _init_board_size_widgets(self):
-        self.board_width_label = tk.Label(
-            self,
-            text="Board Width",
-            relief="ridge"
-        )
+        self.board_width_label = tk.Label(self, text="Board Width", relief="ridge")
         self.board_width_entry = tk.Entry(
-            self,
-            width=6,
-            justify="center",
-            validate="key",
-            vcmd=self.vcmd
+            self, width=6, justify="center", validate="key", vcmd=self.vcmd
         )
-        self.board_height_label = tk.Label(
-            self,
-            text="Board Height",
-            relief="ridge"
-        )
+        self.board_height_label = tk.Label(self, text="Board Height", relief="ridge")
         self.board_height_entry = tk.Entry(
-            self,
-            width=6,
-            justify="center",
-            validate="key",
-            vcmd=self.vcmd
+            self, width=6, justify="center", validate="key", vcmd=self.vcmd
         )
 
     def _pack_board_size_widgets(self):
@@ -208,29 +185,13 @@ class SideFrame(tk.Frame):
         self.board_height_entry.pack()
 
     def _init_cell_size_widgets(self):
-        self.cell_width_label = tk.Label(
-            self,
-            text="Cell Width",
-            relief="ridge"
-        )
+        self.cell_width_label = tk.Label(self, text="Cell Width", relief="ridge")
         self.cell_width_entry = tk.Entry(
-            self,
-            width=4,
-            justify="center",
-            validate="key",
-            vcmd=self.vcmd
+            self, width=4, justify="center", validate="key", vcmd=self.vcmd
         )
-        self.cell_height_label = tk.Label(
-            self,
-            text="Cell Height",
-            relief="ridge"
-        )
+        self.cell_height_label = tk.Label(self, text="Cell Height", relief="ridge")
         self.cell_height_entry = tk.Entry(
-            self,
-            width=4,
-            justify="center",
-            validate="key",
-            vcmd=self.vcmd
+            self, width=4, justify="center", validate="key", vcmd=self.vcmd
         )
 
     def _pack_cell_size_widgets(self):

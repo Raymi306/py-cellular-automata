@@ -6,7 +6,6 @@ from app.palettes import PALETTES
 
 
 class Board:
-
     @property
     def max_x_pos(self):
         return int(self.board_width / self.cell_width)
@@ -38,14 +37,11 @@ class Board:
         self.current_neighborhood = self.define_neighborhood(
             self.neighborhood_func_indices
         )
-        self.current_color = PALETTES['blk']
+        self.current_color = PALETTES["blk"]
         self.reset()
 
     def randomize(self):
-        lottery = random.sample(
-            self.cells,
-            random.randint(1, (self.total_cells - 1))
-        )
+        lottery = random.sample(self.cells, random.randint(1, (self.total_cells - 1)))
         for cell in lottery:
             cell.toggle()
 
@@ -86,8 +82,9 @@ class Board:
     def get_nw(self, index):
         default_case = index - self.max_x_pos - 1
 
-        if index < self.max_x_pos\
-                and index % self.max_x_pos != 0:  # top row exclude top left
+        if (
+            index < self.max_x_pos and index % self.max_x_pos != 0
+        ):  # top row exclude top left
             return default_case + self.total_cells
         elif index % self.max_x_pos == 0:  # left col
             left_col_case = index - 1
@@ -101,8 +98,7 @@ class Board:
     def get_ne(self, index):
         default_case = index - self.max_x_pos + 1
         # exclude corner
-        if index < self.max_x_pos\
-                and index % self.max_x_pos != self.max_x_pos - 1:
+        if index < self.max_x_pos and index % self.max_x_pos != self.max_x_pos - 1:
             return default_case + self.total_cells
         elif index % self.max_x_pos == self.max_x_pos - 1:
             right_col_case = default_case - self.max_x_pos
@@ -116,8 +112,7 @@ class Board:
     def get_sw(self, index):
         default_case = index + self.max_x_pos - 1
         # bot row exclude bot left
-        if index + self.max_x_pos >= self.total_cells\
-                and index % self.max_x_pos != 0:
+        if index + self.max_x_pos >= self.total_cells and index % self.max_x_pos != 0:
             return default_case - self.total_cells
         elif index % self.max_x_pos == 0:  # left col
             left_col_case = default_case + self.max_x_pos
@@ -132,8 +127,10 @@ class Board:
         default_case = index + self.max_x_pos + 1
 
         # bot row exclude bot right
-        if index + self.max_x_pos >= self.total_cells\
-                and index % self.max_x_pos != self.max_x_pos - 1:
+        if (
+            index + self.max_x_pos >= self.total_cells
+            and index % self.max_x_pos != self.max_x_pos - 1
+        ):
             return default_case - self.total_cells
         elif index % self.max_x_pos == self.max_x_pos - 1:  # right col
             right_col_case = default_case - self.max_x_pos
@@ -151,15 +148,13 @@ class Board:
             return index + self.total_cells - self.max_x_pos
 
     def get_w(self, index):
-        if index - 1 >= 0\
-                and (index - 1) % self.max_x_pos != self.max_x_pos - 1:
+        if index - 1 >= 0 and (index - 1) % self.max_x_pos != self.max_x_pos - 1:
             return index - 1
         else:
             return index + self.max_x_pos - 1
 
     def get_e(self, index):
-        if (index + 1) % self.max_x_pos != 0\
-           and index + 1 < self.total_cells:
+        if (index + 1) % self.max_x_pos != 0 and index + 1 < self.total_cells:
             return index + 1
         else:
             return index - self.max_x_pos + 1
@@ -170,9 +165,7 @@ class Board:
         else:
             return index - self.total_cells + self.max_x_pos
 
-    neighbor_functions = (
-        get_nw, get_n, get_ne, get_w, get_e, get_sw, get_s, get_se
-    )
+    neighbor_functions = (get_nw, get_n, get_ne, get_w, get_e, get_sw, get_s, get_se)
 
     def define_neighborhood(self, neighborhood_func_indices):
         def neighborhood(index):
@@ -180,6 +173,7 @@ class Board:
             for i in neighborhood_func_indices:
                 indices.append(self.neighbor_functions[i](self, index))
             return indices
+
         return neighborhood
 
     def define_rules(self, bs_tuple):
@@ -193,6 +187,7 @@ class Board:
             elif alive_neighbors in birth_set:
                 return 1
             return status
+
         return rule
 
 
